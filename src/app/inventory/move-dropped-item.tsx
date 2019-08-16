@@ -5,10 +5,12 @@ import { reportException } from '../exceptions';
 import { dimItemService } from './dimItemService.factory';
 import { DimError } from '../bungie-api/bungie-service-helper';
 import { t } from 'app/i18next-t';
-import { PlatformErrorCodes } from '../../../node_modules/bungie-api-ts/user';
+import { PlatformErrorCodes } from 'bungie-api-ts/user';
 import { loadingTracker } from '../shell/loading-tracker';
 import { showNotification } from '../notifications/notifications';
 import { Subject } from 'rxjs';
+import BungieImage from 'app/dim-ui/BungieImage';
+import React from 'react';
 
 export interface MoveAmountPopupOptions {
   item: DimItem;
@@ -89,7 +91,20 @@ export default queuedAction(
           );
         }
 
-        item = await dimItemService.moveTo(item, target, equip, moveAmount);
+        const movePromise = dimItemService.moveTo(item, target, equip, moveAmount);
+
+        // TODO: extend the notification and add an undo button?
+        showNotification({
+          duration: movePromise,
+          title: item.name,
+          body: (
+            <div>
+              <BungieImage src={item.icon} /> => <img src={target.icon} />
+            </div>
+          )
+        });
+
+        item = await movePromise;
 
         const reload = item.equipped || equip;
         if (reload) {

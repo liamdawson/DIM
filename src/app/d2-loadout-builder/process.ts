@@ -268,6 +268,7 @@ function byStatMix(item: DimItem) {
 
   if (stat && item.isDestiny2() && item.sockets) {
     for (const socket of item.sockets.sockets) {
+      // TODO: if the length is one, it may contribute to the stats overall (like a mod)
       if (socket.plugOptions.length > 1) {
         for (const plug of socket.plugOptions) {
           if (plug.plugItem && plug.plugItem.investmentStats.length) {
@@ -276,6 +277,7 @@ function byStatMix(item: DimItem) {
               return stat ? stat.value : 0;
             });
 
+            // TODO: gonna have to handle 6 stats here
             mixes.push(
               [
                 stat[0].base + statBonuses.Mobility,
