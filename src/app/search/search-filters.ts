@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import idx from 'idx';
+import accentInsensitiveSearch from 'accent-insensitive-search';
 
 import { compareBy, chainComparator, reverseComparator } from '../comparators';
 import { DimItem, D1Item, D2Item } from '../inventory/item-types';
@@ -942,12 +943,15 @@ function searchFilters(
       },
       keyword(item: DimItem, predicate: string) {
         return (
-          item.name.toLowerCase().includes(predicate) ||
-          item.description.toLowerCase().includes(predicate) ||
+          accentInsensitiveSearch(predicate, item.name) ||
+          accentInsensitiveSearch(predicate, item.description) ||
           // Search notes field
           (item.dimInfo &&
             item.dimInfo.notes &&
-            item.dimInfo.notes.toLocaleLowerCase().includes(predicate.toLocaleLowerCase())) ||
+            accentInsensitiveSearch(
+              predicate.toLocaleLowerCase(),
+              item.dimInfo.notes.toLocaleLowerCase()
+            )) ||
           // Search for typeName (itemTypeDisplayName of modifications)
           item.typeName.toLowerCase().includes(predicate) ||
           // Search perks as well
@@ -956,10 +960,10 @@ function searchFilters(
       },
       // name and description searches to narrow search down from "keyword"
       name(item: DimItem, predicate: string) {
-        return item.name.toLowerCase().includes(predicate);
+        return accentInsensitiveSearch(predicate, item.name);
       },
       description(item: DimItem, predicate: string) {
-        return item.description.toLowerCase().includes(predicate);
+        return accentInsensitiveSearch(predicate, item.description);
       },
       perk(item: DimItem, predicate: string) {
         const regex = startWordRegexp(predicate);
